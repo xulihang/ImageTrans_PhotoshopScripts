@@ -1,30 +1,37 @@
+var layerIsFound=false;
 var inputFolder = Folder.selectDialog("Select a folder to process");
-var fileList = inputFolder.getFiles("*.txt"); //Use whatever extension you want or no extension to select all files
-
-app.preferences.rulerUnits=Units.PIXELS
-app.preferences.typeUnits=TypeUnits.POINTS
-app.displayDialogs=DialogModes.NO
-
-for(var i=0; i<fileList.length; i++) {
-    var txtpath="";
-	txtpath=fileList[i];
-	var b = new File(txtpath);
+var txtPath = inputFolder + "/" + "out.txt"
+var txtFile = new File(txtPath)
+if (txtFile.exists==false){
+    alert("out.txt does not exist!")
+}
+else{
+	app.preferences.rulerUnits=Units.PIXELS
+    app.preferences.typeUnits=TypeUnits.POINTS
+    app.displayDialogs=DialogModes.NO
+    var matchedLayer;
+	var b = new File(txtPath);
     b.open('r');
     var previousFilename = "";
 	var previousPath = "";
+	var filepath = "";
 	var docRef;
     while(!b.eof){
         var line = b.readln();
-		alert(line);
+		//alert(line);
 		var params = line.split("	");
 		var X=params[0];
 		var Y=params[1];
 		var width=params[2];
         var height=params[3];
 		var filename = params[4];
-		var filepath = inputFolder + "/" + filename ;
+		filepath = inputFolder + "/" + filename ;
+		var maskPath = filepath+"-text-removed.jpg"
+		filepath=changeToPSDPathIfExist(filepath)
         previousPath = inputFolder + "/" + previousFilename ;
+        previousPath=changeToPSDPathIfExist(previousPath)
 		var bgcolor=params[5];
+		var layername=params[6];
 		var pfontsize=params[7];
 		var lineheight=params[8];
 		var fontname=params[9];
@@ -40,16 +47,15 @@ for(var i=0; i<fileList.length; i++) {
 			previousFilename=filename
 			var f = new File(filepath);
 		    docRef = open(f);
-			addPreciseMask(filepath,docRef);
+			//addPreciseMask(maskPath,docRef);
 		}
-		addTextLayer(docRef,X,Y,width,height,text,pfontsize,lineheight,fontname,fontcolor,textDirection,alignment)
+		addTextLayer(docRef,layername,X,Y,width,height,text,pfontsize,lineheight,fontname,fontcolor,textDirection,alignment)
     }
 	b.close();
 	SaveAsPSDandClose(docRef,filepath)
 }
 
-function addPreciseMask(docPath,docRef){
-   var maskPath=docPath+"-text-removed.jpg"
+function addPreciseMask(maskPath,docRef){
    var f = new File(maskPath);
    var maskDoc = open(f);
    var backLayer=maskDoc.artLayers[0];
@@ -61,9 +67,19 @@ function addPreciseMask(docPath,docRef){
    //targetLayer.ApplyOffset(bounds[0]-targetBounds[0],bounds[1]-targetBounds[1],3)
 }
 
-function addTextLayer(docRef,X,Y,width,height,text,pfontsize,lineheight,fontname,fontcolor,textDirection,alignment){
+function addTextLayer(docRef,layername,X,Y,width,height,text,pfontsize,lineheight,fontname,fontcolor,textDirection,alignment){
     var res=docRef.resolution;
-	var textLayer = docRef.artLayers.add();
+	if (layername=="NotALayer"){
+		var textLayer = docRef.artLayers.add();
+	}
+	else {
+		layerIsFound=false;
+		var textLayer = getMatchedTextLayer(docRef,layername);
+		if (layerIsFound==false){
+			var textLayer = docRef.artLayers.add();
+		}
+	}
+	
 	textLayer.kind=LayerKind.TEXT
 	textLayer.textItem.kind= TextType.PARAGRAPHTEXT
     textLayer.textItem.contents = text
@@ -85,10 +101,44 @@ function addTextLayer(docRef,X,Y,width,height,text,pfontsize,lineheight,fontname
 	textLayer.textItem.color=getSolidColor(fontcolor)
 }
 
+function getMatchedTextLayer(docRef,layername){
+    handleArtLayers(docRef.artLayers,layername)
+	handleLayerSets(docRef.layerSets,layername)
+	return matchedLayer
+}
+
+function handleLayerSets(layerSets,layername){
+	for(var i=0; i<layerSets.length; i++) {
+		var layerSet=layerSets[i];
+		if (layerIsFound==true){
+			break;
+		}
+		handleArtLayers(layerSet.artLayers,layername);
+		handleLayerSets(layerSet.layerSets,layername);
+	}
+}
+
+function handleArtLayers(artLayers,layername){
+	for(var i=0; i<artLayers.length; i++) {
+		var artLayer = artLayers[i];
+		if (artLayer.name==layername){
+			matchedLayer=artLayer;
+			layerIsFound=true
+			alert("match")
+			break;
+		}
+		if (layerIsFound==true){
+			break;
+		}
+	}
+}
+
+
+
+
 function SaveAsPSDandClose(docRef,docPath){
     var psdPath=changeExtenstion(docPath,"psd")
     var output = new File(psdPath)
-	alert(psdPath)
 	var options = new PhotoshopSaveOptions()
 	options.layers=true
     docRef.saveAs(output,options)
@@ -142,3 +192,17 @@ function getDirection(textDirection){
 	}
 	return c
 }
+
+function changeToPSDPathIfExist(filePath){
+    var psdPath = changeExtenstion(filePath,"psd");
+    var f = new File (psdPath)
+	if (f.exists){
+		return psdPath
+	}
+	else{
+		return filepath
+	}
+}
+
+
+
