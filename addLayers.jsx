@@ -1,3 +1,6 @@
+var precisionMode=true;
+var psdExist=false;
+var textKind=TextType.PARAGRAPHTEXT;
 var layerIsFound=false;
 var inputFolder = Folder.selectDialog("Select a folder to process");
 var txtPath = inputFolder + "/" + "out.txt"
@@ -9,6 +12,7 @@ else{
 	app.preferences.rulerUnits=Units.PIXELS
     app.preferences.typeUnits=TypeUnits.POINTS
     app.displayDialogs=DialogModes.NO
+	readParams(inputFolder.toString())
     var matchedLayer;
 	var b = new File(txtPath);
     b.open('r');
@@ -47,7 +51,9 @@ else{
 			previousFilename=filename
 			var f = new File(filepath);
 		    docRef = open(f);
-			//addPreciseMask(maskPath,docRef);
+			if (precisionMode==true){
+			    addPreciseMask(maskPath,docRef);	
+			}
 		}
 		addTextLayer(docRef,layername,X,Y,width,height,text,pfontsize,lineheight,fontname,fontcolor,textDirection,alignment)
     }
@@ -81,7 +87,7 @@ function addTextLayer(docRef,layername,X,Y,width,height,text,pfontsize,lineheigh
 	}
 	
 	textLayer.kind=LayerKind.TEXT
-	textLayer.textItem.kind= TextType.PARAGRAPHTEXT
+	textLayer.textItem.kind= textKind
     textLayer.textItem.contents = text
 
     textLayer.textItem.size   = pfontsize
@@ -124,7 +130,7 @@ function handleArtLayers(artLayers,layername){
 		if (artLayer.name==layername){
 			matchedLayer=artLayer;
 			layerIsFound=true
-			alert("match")
+			//alert("match")
 			break;
 		}
 		if (layerIsFound==true){
@@ -204,5 +210,27 @@ function changeToPSDPathIfExist(filePath){
 	}
 }
 
+function readParams(dirPath){
+	var paramFile = new File(dirPath + "/" + "params.txt")
+	paramFile.open('r');
+	var content = paramFile.readln();
 
+	paramFile.close();
+	var arr = content.split(",");
+	var exeName=arr[0];
+	var addMaskNum=arr[1];
+	var precisionNum=arr[2];
+	var flipNum=arr[3];
+	var textKindNum=arr[4];
+	if (exeName.match("PSD")){
+		psdExist=true
+	}
+	
+	if (parseInt(precisionNum)==0){
+		precisionMode=false;
+	}
+	if (parseInt(textKindNum)==1){
+		textKind=TextType.POINTTEXT
+	}
+}
 
