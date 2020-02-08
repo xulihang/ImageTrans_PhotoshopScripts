@@ -1,22 +1,22 @@
 var layerIsFound=false;
 var inputFolder = Folder.selectDialog("Select a folder to process");
-var jpgList=[];
-getJPGList(inputFolder.toString())
-for(var i=0; i<jpgList.length; i++) {
-	SaveAsJPGandClose(jpgList[i].toString())
+var psdList=[];
+getPSDList(inputFolder.toString())
+for(var i=0; i<psdList.length; i++) {
+	SaveAsJPGandClose(psdList[i].toString())
 }
 
-alert(jpgList.length+" files are converted")
+alert(psdList.length+" files are converted")
 
-function getJPGList(dirPath){
+function getPSDList(dirPath){
 	var dir = new Folder(dirPath)
 	var files = dir.getFiles(); 
 	for(var i=0; i<files.length; i++) {
         var filePath = files[i];
 		if (filePath instanceof File && endsWith(filePath.toString(),"psd")){
-			jpgList.push(filePath)
+			psdList.push(filePath)
 		}else{
-			getJPGList(filePath.toString())
+			getPSDList(filePath.toString())
 		}
     }
 }
