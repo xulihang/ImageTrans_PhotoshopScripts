@@ -103,7 +103,7 @@ function addTextLayer(docRef,layername,X,Y,width,height,text,pfontsize,lineheigh
 	textLayer.textItem.direction = getDirection(textDirection)
     textLayer.textItem.hyphenation = true
     textLayer.textItem.useAutoLeading = false
-    textLayer.textItem.leading=textLayer.textItem.Size*lineheight
+    textLayer.textItem.leading=textLayer.textItem.size*lineheight
 	textLayer.textItem.color=getSolidColor(fontcolor)
 }
 
