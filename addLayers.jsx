@@ -1,5 +1,6 @@
 var precisionMode=true;
 var psdExist=false;
+var addMask=false;
 var textKind=TextType.PARAGRAPHTEXT;
 var layerIsFound=false;
 var inputFolder = Folder.selectDialog("Select a folder to process");
@@ -20,6 +21,7 @@ else{
 	var previousPath = "";
 	var filepath = "";
 	var docRef;
+	var index=0;
     while(!b.eof){
         var line = b.readln();
 		//alert(line);
@@ -51,10 +53,13 @@ else{
 			previousFilename=filename
 			var f = new File(filepath);
 		    docRef = open(f);
+			index=0
 			if (precisionMode==true){
 			    addPreciseMask(maskPath,docRef);	
 			}
 		}
+		index=index+1
+		addMaskLayer(docRef,X,Y,width,height,bgcolor,index)
 		addTextLayer(docRef,layername,X,Y,width,height,text,pfontsize,lineheight,fontname,fontcolor,textDirection,alignment)
     }
 	b.close();
@@ -135,6 +140,30 @@ function handleArtLayers(artLayers,layername){
 		}
 		if (layerIsFound==true){
 			break;
+		}
+	}
+}
+
+function addMaskLayer(docRef,X,Y,width,height,bgcolor,index){
+	if (addMask==true && bgcolor!="transparent"){
+		if (precisionMode==false){
+			//alert(Array(X,Y,width,height).join("."))
+			X=parseInt(X)
+			Y=parseInt(Y)
+			width=parseInt(width)
+			height=parseInt(height)
+			maskArtLayer = docRef.artLayers.add()
+		    maskArtLayer.bounds=Array(X,Y)
+		    maskArtLayer.name="mask "+index
+		    color = getSolidColor(bgcolor)
+		    var arr1=Array(X,Y)
+		    var arr2=Array(X,Y+height)
+			var arr3=Array(X+width,Y+height)
+			var arr4=Array(X+width,Y)
+		    var region=Array(arr1,arr2,arr3,arr4)
+			//alert(region.toString())
+		    docRef.selection.select(region)
+		    docRef.selection.fill(color)
 		}
 	}
 }
@@ -225,7 +254,9 @@ function readParams(dirPath){
 	if (exeName.match("PSD")){
 		psdExist=true
 	}
-	
+	if (parseInt(addMaskNum)==1){
+		addMask=true;
+	}
 	if (parseInt(precisionNum)==0){
 		precisionMode=false;
 	}
