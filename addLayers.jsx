@@ -1,6 +1,7 @@
 var precisionMode=true;
 var psdExist=false;
 var addMask=false;
+var isPoint=false;
 var textKind=TextType.PARAGRAPHTEXT;
 var layerIsFound=false;
 var inputFolder = Folder.selectDialog("Select a folder to process");
@@ -44,7 +45,11 @@ else{
 		var fontcolor=params[10];
         var textDirection=params[11];
 		var alignment=params[12];
-		var text=params[13];	
+		var wrap=true;
+		if (params[13]=="false"){
+			wrap=false;
+		}	
+		var text=params[14];	
 		//alert(filepath);
 		if (previousFilename!=filename){
 		    if (previousFilename!=""){
@@ -60,7 +65,7 @@ else{
 		}
 		index=index+1
 		addMaskLayer(docRef,X,Y,width,height,bgcolor,index)
-		addTextLayer(docRef,layername,X,Y,width,height,text,pfontsize,lineheight,fontname,fontcolor,textDirection,alignment)
+		addTextLayer(docRef,layername,X,Y,width,height,text,pfontsize,lineheight,fontname,fontcolor,textDirection,alignment,wrap)
     }
 	b.close();
 	SaveAsPSDandClose(docRef,filepath)
@@ -78,7 +83,7 @@ function addPreciseMask(maskPath,docRef){
    //targetLayer.ApplyOffset(bounds[0]-targetBounds[0],bounds[1]-targetBounds[1],3)
 }
 
-function addTextLayer(docRef,layername,X,Y,width,height,text,pfontsize,lineheight,fontname,fontcolor,textDirection,alignment){
+function addTextLayer(docRef,layername,X,Y,width,height,text,pfontsize,lineheight,fontname,fontcolor,textDirection,alignment,wrap){
     var res=docRef.resolution;
 	if (layername=="NotALayer"){
 		var textLayer = docRef.artLayers.add();
@@ -90,19 +95,29 @@ function addTextLayer(docRef,layername,X,Y,width,height,text,pfontsize,lineheigh
 			var textLayer = docRef.artLayers.add();
 		}
 	}
-	
+	text=unescape(text)
 	textLayer.kind=LayerKind.TEXT
-	textLayer.textItem.kind= textKind
+	
+	if (isPoint==true){
+		textLayer.textItem.kind=TextType.POINTTEXT
+	}else{
+	    if (wrap==true){
+		    textLayer.textItem.kind=TextType.PARAGRAPHTEXT
+			width=width/res*72
+			height=height/res*72
+			textLayer.textItem.width=width
+			textLayer.textItem.height=height
+		}else{
+			textLayer.textItem.kind=TextType.POINTTEXT
+		}
+	}
+
+
     textLayer.textItem.contents = text
 
     textLayer.textItem.size   = pfontsize
     textLayer.textItem.position=Array(X,Y)
-	
-    width=width/res*72
-    height=height/res*72
-	
-    textLayer.textItem.width=width
-    textLayer.textItem.height=height
+
     textLayer.textItem.font= fontname
     textLayer.textItem.justification=getJustification(alignment)
 	textLayer.textItem.direction = getDirection(textDirection)
@@ -178,6 +193,11 @@ function SaveAsPSDandClose(docRef,docPath){
 	options.layers=true
     docRef.saveAs(output,options)
 	docRef.close(SaveOptions.DONOTSAVECHANGES)
+}
+
+
+function unescape(text){
+	return text.split("\\n").join('\r')
 }
 
 function changeExtenstion(filename,target){
@@ -261,7 +281,7 @@ function readParams(dirPath){
 		precisionMode=false;
 	}
 	if (parseInt(textKindNum)==1){
-		textKind=TextType.POINTTEXT
+		isPoint=true;
 	}
 }
 
