@@ -39,7 +39,8 @@ else{
         previousPath=changeToPSDPathIfExist(previousPath)
 		var bgcolor=params[5];
 		var layername=params[6];
-		var pfontsize=params[7];
+		var pfontsize=12.0;
+		pfontsize=params[7];
 		var lineheight=params[8];
 		var fontname=params[9];
 		var fontcolor=params[10];
@@ -64,7 +65,15 @@ else{
 		var rotationDegree=0;
 		if (params[17]!="null"){
 			rotationDegree=params[17];
-		}	
+		}
+		var shadowRadius=1;
+		if (params[18]!="null"){
+			shadowRadius=params[18];
+		}
+		var shadowColor="null";
+		if (params[19]!="null"){
+			shadowColor=params[19];
+		}			
 		var text=params[params.length-1];	
 		//alert(filepath);
 		if (previousFilename!=filename){
@@ -81,7 +90,7 @@ else{
 		}
 		index=index+1
 		addMaskLayer(docRef,X,Y,width,height,bgcolor,index)
-		addTextLayer(docRef,layername,X,Y,width,height,text,pfontsize,lineheight,fontname,fontcolor,textDirection,alignment,wrap,bold,italic,capital,rotationDegree)
+		addTextLayer(docRef,layername,X,Y,width,height,text,pfontsize,lineheight,fontname,fontcolor,textDirection,alignment,wrap,bold,italic,capital,rotationDegree,shadowRadius,shadowColor)
     }
 	b.close();
 	SaveAsPSDandClose(docRef,filepath)
@@ -99,7 +108,7 @@ function addPreciseMask(maskPath,docRef){
    //targetLayer.ApplyOffset(bounds[0]-targetBounds[0],bounds[1]-targetBounds[1],3)
 }
 
-function addTextLayer(docRef,layername,X,Y,width,height,text,pfontsize,lineheight,fontname,fontcolor,textDirection,alignment,wrap,bold,italic,capital,rotationDegree){
+function addTextLayer(docRef,layername,X,Y,width,height,text,pfontsize,lineheight,fontname,fontcolor,textDirection,alignment,wrap,bold,italic,capital,rotationDegree,shadowRadius,shadowColor){
     var res=docRef.resolution;
 	if (layername=="NotALayer"){
 		var textLayer = docRef.artLayers.add();
@@ -140,6 +149,7 @@ function addTextLayer(docRef,layername,X,Y,width,height,text,pfontsize,lineheigh
 		textLayer.rotate(rotationDegree,AnchorPosition.MIDDLECENTER)
 	}
     textLayer.textItem.contents = text
+
     textLayer.textItem.size   = pfontsize
     
     textLayer.textItem.position=Array(X,Y)
@@ -151,6 +161,15 @@ function addTextLayer(docRef,layername,X,Y,width,height,text,pfontsize,lineheigh
     textLayer.textItem.useAutoLeading = false
     textLayer.textItem.leading=textLayer.textItem.size*lineheight
 	textLayer.textItem.color=getSolidColor(fontcolor)
+	if (shadowColor!="null"){
+		docRef.selection.selectAll();
+		try {
+		    docRef.selection.stroke(getSolidColor(shadowColor),shadowRadius);		
+        } catch (error) {
+
+        }
+        docRef.selection.deselect();
+	}
 }
 
 function getMatchedTextLayer(docRef,layername){
