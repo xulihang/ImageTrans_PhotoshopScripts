@@ -48,8 +48,24 @@ else{
 		var wrap=true;
 		if (params[13]=="false"){
 			wrap=false;
+		}
+		var bold=false;
+		if (params[14]=="true"){
+			bold=true;
+		}
+		var italic=false;
+		if (params[15]=="true"){
+			italic=true;
+		}
+		var capital=false;
+		if (params[16]=="true"){
+			capital=true;
+		}
+		var rotationDegree=0;
+		if (params[17]!="null"){
+			rotationDegree=params[17];
 		}	
-		var text=params[14];	
+		var text=params[params.length-1];	
 		//alert(filepath);
 		if (previousFilename!=filename){
 		    if (previousFilename!=""){
@@ -65,7 +81,7 @@ else{
 		}
 		index=index+1
 		addMaskLayer(docRef,X,Y,width,height,bgcolor,index)
-		addTextLayer(docRef,layername,X,Y,width,height,text,pfontsize,lineheight,fontname,fontcolor,textDirection,alignment,wrap)
+		addTextLayer(docRef,layername,X,Y,width,height,text,pfontsize,lineheight,fontname,fontcolor,textDirection,alignment,wrap,bold,italic,capital,rotationDegree)
     }
 	b.close();
 	SaveAsPSDandClose(docRef,filepath)
@@ -83,7 +99,7 @@ function addPreciseMask(maskPath,docRef){
    //targetLayer.ApplyOffset(bounds[0]-targetBounds[0],bounds[1]-targetBounds[1],3)
 }
 
-function addTextLayer(docRef,layername,X,Y,width,height,text,pfontsize,lineheight,fontname,fontcolor,textDirection,alignment,wrap){
+function addTextLayer(docRef,layername,X,Y,width,height,text,pfontsize,lineheight,fontname,fontcolor,textDirection,alignment,wrap,bold,italic,capital,rotationDegree){
     var res=docRef.resolution;
 	if (layername=="NotALayer"){
 		var textLayer = docRef.artLayers.add();
@@ -111,11 +127,21 @@ function addTextLayer(docRef,layername,X,Y,width,height,text,pfontsize,lineheigh
 			textLayer.textItem.kind=TextType.POINTTEXT
 		}
 	}
-
-
+    if (bold==true){
+	    textLayer.textItem.fauxBold=true;
+	}
+	if (italic==true){
+	    textLayer.textItem.fauxItalic=true;
+	}
+	if (capital==true){
+		textLayer.textItem.capitalization=TextCase.ALLCAPS
+	}
+	if (rotationDegree!=0){
+		textLayer.rotate(rotationDegree,AnchorPosition.MIDDLECENTER)
+	}
     textLayer.textItem.contents = text
-
     textLayer.textItem.size   = pfontsize
+    
     textLayer.textItem.position=Array(X,Y)
 
     textLayer.textItem.font= fontname
