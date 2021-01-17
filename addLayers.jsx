@@ -123,19 +123,18 @@ function addTextLayer(docRef,layername,X,Y,width,height,text,pfontsize,lineheigh
 	text=unescape(text)
 	textLayer.kind=LayerKind.TEXT
 	
-	if (isPoint==true){
-		textLayer.textItem.kind=TextType.POINTTEXT
+
+	if (wrap==true){
+		textLayer.textItem.kind=TextType.PARAGRAPHTEXT
+		width=width/res*72
+		height=height/res*72
+		textLayer.textItem.width=width
+		textLayer.textItem.height=height
 	}else{
-	    if (wrap==true){
-		    textLayer.textItem.kind=TextType.PARAGRAPHTEXT
-			width=width/res*72
-			height=height/res*72
-			textLayer.textItem.width=width
-			textLayer.textItem.height=height
-		}else{
-			textLayer.textItem.kind=TextType.POINTTEXT
-		}
+		textLayer.textItem.kind=TextType.POINTTEXT
 	}
+
+
     if (bold==true){
 	    textLayer.textItem.fauxBold=true;
 	}
@@ -148,19 +147,25 @@ function addTextLayer(docRef,layername,X,Y,width,height,text,pfontsize,lineheigh
 	if (rotationDegree!=0){
 		textLayer.rotate(rotationDegree,AnchorPosition.MIDDLECENTER)
 	}
-    textLayer.textItem.contents = text
-
-    textLayer.textItem.size   = pfontsize
-    
-    textLayer.textItem.position=Array(X,Y)
-
-    textLayer.textItem.font= fontname
-    textLayer.textItem.justification=getJustification(alignment)
+	textLayer.textItem.position=Array(X,Y)
+	textLayer.textItem.contents = text
 	textLayer.textItem.direction = getDirection(textDirection)
+	textLayer.textItem.size = pfontsize
+    textLayer.textItem.font = fontname
+    textLayer.textItem.justification=getJustification(alignment)
     textLayer.textItem.hyphenation = true
     textLayer.textItem.useAutoLeading = false
     textLayer.textItem.leading=textLayer.textItem.size*lineheight
 	textLayer.textItem.color=getSolidColor(fontcolor)
+	
+	if (isPoint==true){
+		textLayer.textItem.kind=TextType.POINTTEXT
+		var currentText=textLayer.textItem.contents;
+		if (currentText.length<text.length){
+			textLayer.textItem.contents = text
+		}
+	}
+	
 	if (shadowColor!="null"){
 		docRef.selection.selectAll();
 		try {
@@ -239,7 +244,6 @@ function SaveAsPSDandClose(docRef,docPath){
     docRef.saveAs(output,options)
 	docRef.close(SaveOptions.DONOTSAVECHANGES)
 }
-
 
 function unescape(text){
 	return text.split("\\n").join('\r')
