@@ -297,14 +297,14 @@ function getDirection(textDirection){
 	return c
 }
 
-function changeToPSDPathIfExist(filePath){
-    var psdPath = changeExtenstion(filePath,"psd");
+function changeToPSDPathIfExist(pfilePath){
+    var psdPath = changeExtenstion(pfilePath,"psd");
     var f = new File (psdPath)
 	if (f.exists){
 		return psdPath
 	}
 	else{
-		return filepath
+		return pfilePath
 	}
 }
 
