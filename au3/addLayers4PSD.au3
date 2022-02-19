@@ -99,7 +99,7 @@ While True
 		 ContinueLoop
 	  EndIf
    EndIf
-   $text=StringRight($line, StringLen($line) - StringInStr($line,@TAB,0,19))
+   $text=StringRight($line, StringLen($line) - StringInStr($line,@TAB,0,20))
    $text=StringReplace($text, "\n", @CR)
    ConsoleWrite($X & @CRLF)
    ConsoleWrite($Y & @CRLF)
