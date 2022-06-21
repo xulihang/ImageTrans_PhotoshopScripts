@@ -26,7 +26,7 @@ else{
   while(!b.eof){
     var line = b.readln();
     //alert(line);
-    var params = line.split("  ");
+    var params = line.split("	");
     var X=params[0];
     var Y=params[1];
     var width=params[2];
@@ -35,6 +35,7 @@ else{
     filepath = inputFolder + "/" + filename ;
     var maskPath = filepath+"-text-removed.jpg"
     filepath=changeToPSDPathIfExist(filepath)
+    //alert(filepath);
     previousPath = inputFolder + "/" + previousFilename ;
     previousPath=changeToPSDPathIfExist(previousPath)
     var bgcolor=params[5];
@@ -81,6 +82,7 @@ else{
         SaveAsPSDandClose(docRef,previousPath)
       }
       previousFilename=filename
+      //alert(filepath);
       var f = new File(filepath);
       docRef = open(f);
       index=0
@@ -237,12 +239,22 @@ function addMaskLayer(docRef,X,Y,width,height,bgcolor,index){
 
 
 function SaveAsPSDandClose(docRef,docPath){
-  var psdPath=changeExtenstion(docPath,"psd")
-  var output = new File(psdPath)
-  var options = new PhotoshopSaveOptions()
-  options.layers=true
-  docRef.saveAs(output,options)
-  docRef.close(SaveOptions.DONOTSAVECHANGES)
+  var psdPath=changeExtenstion(docPath,"psd");
+  var psbPath=changeExtenstion(docPath,"psb");
+  var psdFile = new File(psdPath);
+  var psbFile = new File(psbPath);
+  
+  if (psbFile.exists){
+    docRef.close(SaveOptions.SAVECHANGES);
+  }else if (psdFile.exists) {
+    docRef.close(SaveOptions.SAVECHANGES);
+  }else{
+    var output = new File(psdPath);
+    var options = new PhotoshopSaveOptions();
+    options.layers=true;
+    docRef.saveAs(output,options);
+    docRef.close(SaveOptions.DONOTSAVECHANGES);
+  }
 }
 
 function unescape(text){
@@ -298,14 +310,20 @@ function getDirection(textDirection){
 }
 
 function changeToPSDPathIfExist(pfilePath){
+  //alert(pfilePath);
   var psdPath = changeExtenstion(pfilePath,"psd");
-  var f = new File (psdPath)
+  var f = new File(psdPath)
   if (f.exists){
-    return psdPath
+    return psdPath;
   }
   else{
-    return pfilePath
+    var psbPath = changeExtenstion(pfilePath,"psb");
+    var f = new File(psbPath)
+    if (f.exists){
+      return psbPath;
+    }
   }
+  return pfilePath
 }
 
 function readParams(dirPath){
