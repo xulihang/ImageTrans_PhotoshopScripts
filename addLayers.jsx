@@ -152,7 +152,8 @@ function addTextLayer(docRef,layername,X,Y,width,height,text,pfontsize,lineheigh
   textLayer.textItem.position=Array(X,Y)
   textLayer.textItem.contents = text
   textLayer.textItem.direction = getDirection(textDirection)
-  textLayer.textItem.size = new UnitValue(pfontsize,"px")
+
+  textLayer.textItem.size = new UnitValue(pfontsize/res*72,"px")
   textLayer.textItem.font = fontname
   textLayer.textItem.justification=getJustification(alignment)
   textLayer.textItem.hyphenation = true
