@@ -86,7 +86,7 @@ else{
       var f = new File(filepath);
       docRef = open(f);
       index=0
-      if (precisionMode==true){
+      if (addMask==true && precisionMode==true){
         addPreciseMask(maskPath,docRef);  
       }
     }
