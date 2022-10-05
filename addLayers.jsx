@@ -33,7 +33,6 @@ else{
     var height=params[3];
     var filename = params[4];
     filepath = inputFolder + "/" + filename ;
-    var maskPath = filepath+"-text-removed.jpg"
     filepath=changeToPSDPathIfExist(filepath)
     //alert(filepath);
     previousPath = inputFolder + "/" + previousFilename ;
@@ -87,7 +86,7 @@ else{
       docRef = open(f);
       index=0
       if (addMask==true && precisionMode==true){
-        addPreciseMask(maskPath,docRef);  
+        addPreciseMask(filepath,docRef);  
       }
     }
     index=index+1
@@ -98,8 +97,16 @@ else{
   SaveAsPSDandClose(docRef,filepath)
 }
 
-function addPreciseMask(maskPath,docRef){
+function addPreciseMask(filepath,docRef){
+  var maskPath = filepath+"-text-removed.jpg"
   var f = new File(maskPath);
+  if (f.exists==false){
+    maskPath = filepath+"-text-removed.png"
+    f = new File(maskPath);
+  }
+  if (f.exists==false){
+    return;
+  }
   var maskDoc = open(f);
   var backLayer = maskDoc.artLayers[0];
   backLayer.copy();
