@@ -1,4 +1,6 @@
+#include BBCodeParser.js
 var precisionMode=true;
+var richText=true;
 var psdExist=false;
 var addMask=false;
 var isPoint=false;
@@ -156,6 +158,16 @@ function addTextLayer(docRef,layername,X,Y,width,height,text,pfontsize,lineheigh
   if (rotationDegree!=0){
     textLayer.rotate(rotationDegree,AnchorPosition.MIDDLECENTER)
   }
+  
+  var runs;
+  if (richText==true) {
+    runs = parseBBCode(text);
+    text = "";
+    for (var index = 0; index <= runs.length - 1; index++) {
+      text = text + runs[index].text;
+    }
+  }
+  
   textLayer.textItem.position=Array(X,Y)
   textLayer.textItem.contents = text
   textLayer.textItem.direction = getDirection(textDirection)
@@ -184,6 +196,98 @@ function addTextLayer(docRef,layername,X,Y,width,height,text,pfontsize,lineheigh
 
     }
     docRef.selection.deselect();
+  }
+  
+  if (richText==true) {
+    setInlineStyles(runs,textLayer);
+  }
+}
+
+function setInlineStyles(runs,textLayer) {
+  var idtextLayer = stringIDToTypeID("textLayer");
+  var idordinal = stringIDToTypeID("ordinal");
+  var idtargetEnum = stringIDToTypeID("targetEnum");
+  var idnull = charIDToTypeID( "null" );
+  var idfrom = charIDToTypeID("From");
+  var idto = stringIDToTypeID("to");
+  var idtextStyle = stringIDToTypeID("textStyle");
+  var idtextStyleRange = stringIDToTypeID("textStyleRange");
+  var idset = stringIDToTypeID("set");
+  var idsize = stringIDToTypeID("size");
+  var idpixelsUnit = stringIDToTypeID("pixelsUnit");
+  var idcolor = stringIDToTypeID("color");
+  var idRd = stringIDToTypeID("red");
+  var idGrn = stringIDToTypeID("grain");
+  var idBl = stringIDToTypeID("blue");
+  var idRGBColor = stringIDToTypeID("RGBColor");
+  var startIndex = 0;
+  var endIndex = 0;
+  for (var index = 0; index <= runs.length - 1; index++) {
+    var run = runs[index];
+    endIndex = startIndex + run.text.length;
+
+    var formatting = new ActionDescriptor();
+    var hasRichFormat = false;
+    
+    var fontSize = textLayer.textItem.size;
+    if (run.fontsize) {
+      hasRichFormat = true;
+      fontSize = run.fontsize;
+    }
+    formatting.putUnitDouble(idsize, idpixelsUnit, fontSize);
+    
+    var fontName = textLayer.textItem.font;
+    
+    if (run.fontname) {
+      hasRichFormat = true;
+      fontName = run.fontname;
+    }
+    var idfontPostScriptName = stringIDToTypeID( "fontPostScriptName" );
+    formatting.putString( idfontPostScriptName, fontName );
+      
+    if (run.bold || run.fauxBold) {
+      hasRichFormat = true;
+      var idsyntheticBold = stringIDToTypeID( "syntheticBold" );
+      formatting.putBoolean(idsyntheticBold, true);
+    }
+    
+    if (run.italic || run.fauxItalic) {
+      hasRichFormat = true;
+      var idsyntheticItalic = stringIDToTypeID( "syntheticItalic" );
+      formatting.putBoolean(idsyntheticItalic, true);
+    }
+    
+    if (run.color) {
+      hasRichFormat = true;
+      var colorAction = new ActionDescriptor();
+      colorAction.putDouble(idRd, run.color.r);
+      colorAction.putDouble(idGrn, run.color.g);
+      colorAction.putDouble(idBl, run.color.b);
+      formatting.putObject(idcolor, idRGBColor, colorAction);
+    }
+    
+    if (hasRichFormat) {
+      var reference = new ActionReference();
+      reference.putEnumerated(idtextLayer, idordinal, idtargetEnum);
+      var action = new ActionDescriptor();
+      action.putReference(idnull, reference);
+      var textAction = new ActionDescriptor();
+      var actionList = new ActionList();
+      
+      var idstyleSheetHasParent = stringIDToTypeID( "styleSheetHasParent" );
+      formatting.putBoolean( idstyleSheetHasParent, true );
+      
+      var textRange = new ActionDescriptor();
+      textRange.putInteger(idfrom, startIndex);
+      textRange.putInteger(idto, endIndex);
+      textRange.putObject(idtextStyle, idtextStyle, formatting);
+      actionList.putObject(idtextStyleRange, textRange);
+      textAction.putList(idtextStyleRange, actionList);
+      action.putObject(idto, idtextLayer, textAction);
+      executeAction(idset, action, DialogModes.NO);
+    }
+
+    startIndex = endIndex;
   }
 }
 
@@ -346,6 +450,7 @@ function readParams(dirPath){
   var precisionNum=arr[2];
   var flipNum=arr[3];
   var textKindNum=arr[4];
+  var richTextNum=arr[5];
   if (exeName.match("PSD")){
     psdExist=true
   }
@@ -357,6 +462,13 @@ function readParams(dirPath){
   }
   if (parseInt(textKindNum)==1){
     isPoint=true;
+  }
+  if (richTextNum) {
+    if (parseInt(richTextNum)==0){
+      richText=false;
+    }
+  }else{
+    richText=false;
   }
 }
 
