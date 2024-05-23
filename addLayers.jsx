@@ -174,7 +174,6 @@ function addTextLayer(docRef,layername,X,Y,width,height,text,pfontsize,lineheigh
 
   textLayer.textItem.size = new UnitValue(pfontsize/res*72,"px")
   textLayer.textItem.font = fontname
-  textLayer.textItem.justification=getJustification(alignment)
   textLayer.textItem.hyphenation = true
   textLayer.textItem.useAutoLeading = false
   textLayer.textItem.leading=textLayer.textItem.size*lineheight
@@ -196,6 +195,8 @@ function addTextLayer(docRef,layername,X,Y,width,height,text,pfontsize,lineheigh
   if (richText==true) {
     setInlineStyles(runs,textLayer);
   }
+  
+  textLayer.textItem.justification=getJustification(alignment)
 }
 
 function setInlineStyles(runs,textLayer) {
