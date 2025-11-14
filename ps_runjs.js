@@ -12,6 +12,9 @@ if (WScript.Arguments.length == 2) {
     outputPath = WScript.Arguments(1); 
 }
 
+// 获取 JSX 文件所在目录
+var fso = new ActiveXObject("Scripting.FileSystemObject");
+var jsxFolder = fso.GetParentFolderName(jsxPath).replace(/\\/g, "\\\\");;
 
 // 将反斜杠转义
 jsxPath = jsxPath.replace(/\\/g, "\\\\");
@@ -30,10 +33,20 @@ stream.Close();
 // 替换 outputPath = "" 为实际路径
 if (outputPath != "") {
   code = code.replace(/outputPath\s*=\s*""/g, 'outputPath = "' + outputPath + '"'); 
+  code = code.replace(/inputFolder\s*=\s*""/g, 'inputFolder = "' + outputPath + '"'); 
 }
 
+code = code.replace(/#include\s+([^\s]+)/g, function(_, inc){
+    return '#include "' + jsxFolder + '\\\\' + inc.replace(/"/g, '') + '"';
+});
 
-// WScript.Echo(code);
+
+
+// 注入设置当前目录的代码
+var pathCode = 'var jsRoot = new Folder("' + jsxFolder + '");\njsRoot.changePath();\n';
+code = pathCode + code;
+
+//WScript.Echo(code);
 // 执行 Photoshop 脚本
 var app = new ActiveXObject("Photoshop.Application");
 

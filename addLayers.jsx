@@ -6,7 +6,12 @@ var addMask=false;
 var isPoint=false;
 var textKind=TextType.PARAGRAPHTEXT;
 var layerIsFound=false;
-var inputFolder = Folder.selectDialog("Select a folder to process");
+var inputFolder = "";
+
+if (inputFolder == "") {
+  inputFolder = Folder.selectDialog("Select a folder to process");
+}
+
 var txtPath = inputFolder + "/" + "out.txt"
 var txtFile = new File(txtPath)
 if (txtFile.exists==false){
