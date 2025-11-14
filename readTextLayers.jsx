@@ -2,7 +2,12 @@
 app.preferences.rulerUnits=Units.PIXELS
 app.displayDialogs=DialogModes.NO
 var layerIsFound=false;
-var inputFolder = Folder.selectDialog("Select a folder to process");
+var inputFolder = "";
+
+if (inputFolder == "") {
+  inputFolder = Folder.selectDialog("Select a folder to process");    
+}
+
 var psdList=[];
 var resultDict={};
 resultDict["dir"]=inputFolder.toString();
@@ -23,7 +28,7 @@ a.open('w');
 a.write(result)
 a.close();
 
-alert(psdList.length+" files are read")
+//alert(psdList.length+" files are read")
 
 function getPSDList(dirPath){
 	var dir = new Folder(dirPath)
