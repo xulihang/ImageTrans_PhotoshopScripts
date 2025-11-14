@@ -105,10 +105,20 @@ function addPreciseMask(filepath,docRef){
   if (f.exists==false){
     maskPath = filepath+"-text-removed.png"
     f = new File(maskPath);
+    if (f.exists==false){
+      maskPath = inputFolder + "/intermediateResults/" + filename + "-text-removed.jpg"
+      f = new File(maskPath);
+      if (f.exists==false){
+        maskPath = inputFolder + "/intermediateResults/" + filename + "-text-removed.png"
+        f = new File(maskPath);
+        if (f.exists==false){
+          return;
+        }
+      }
+    }
   }
-  if (f.exists==false){
-    return;
-  }
+
+
   var maskDoc = open(f);
   var backLayer = maskDoc.artLayers[0];
   backLayer.copy();
