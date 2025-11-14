@@ -9,6 +9,7 @@ var isPoint=false;
 var textKind=TextType.PARAGRAPHTEXT;
 var layerIsFound=false;
 var inputFolder = "";
+var intermediateResultFolder = "";
 
 if (inputFolder == "") {
   inputFolder = Folder.selectDialog("Select a folder to process");
@@ -107,21 +108,14 @@ else{
 }
 
 function addPreciseMask(filepath,docRef){
-  var maskPath = filepath+"-text-removed.jpg"
+  var maskPath = inputFolder + "/" + intermediateResultFolder + "/"+filename+"-text-removed.jpg"
   var f = new File(maskPath);
-  if (f.exists==false){
-    maskPath = filepath+"-text-removed.png"
+  if (f.exists==false) {
+    maskPath = inputFolder + "/" + intermediateResultFolder + "/"+filename+"-text-removed.png"
     f = new File(maskPath);
+
     if (f.exists==false){
-      maskPath = inputFolder + "/intermediateResults/" + filename + "-text-removed.jpg"
-      f = new File(maskPath);
-      if (f.exists==false){
-        maskPath = inputFolder + "/intermediateResults/" + filename + "-text-removed.png"
-        f = new File(maskPath);
-        if (f.exists==false){
-          return;
-        }
-      }
+        return;
     }
   }
 
@@ -474,6 +468,7 @@ function readParams(dirPath){
   var flipNum=arr[3];
   var textKindNum=arr[4];
   var richTextNum=arr[5];
+  intermediateResultFolder=arr[6];
   if (exeName.match("PSD")){
     psdExist=true
   }
