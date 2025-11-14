@@ -48,7 +48,14 @@ code = pathCode + code;
 
 //WScript.Echo(code);
 // 执行 Photoshop 脚本
-var app = new ActiveXObject("Photoshop.Application");
+var app;
+try {
+  app  = new ActiveXObject("Photoshop.Application");
+}catch(e) {
+  WScript.StdOut.Write(e.message);
+  WScript.Quit(2);
+}
+
 
 // doJavaScript 返回值
 var result = app.doJavaScript(code);
