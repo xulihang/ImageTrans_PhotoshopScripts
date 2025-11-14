@@ -1,4 +1,6 @@
 #include BBCodeParser.js
+#include fontnameSubstitute.js
+
 var precisionMode=true;
 var richText=true;
 var psdExist=false;
@@ -251,6 +253,7 @@ function setInlineStyles(runs,textLayer) {
     
     if (run.fontname) {
       hasRichFormat = true;
+      fontName = substituteFontName(fontName);
       fontName = run.fontname;
     }
     var idfontPostScriptName = stringIDToTypeID( "fontPostScriptName" );
