@@ -17,7 +17,7 @@ getPSDList(inputFolder.toString())
 for(var i=0; i<psdList.length; i++) {
 	var PSDName=psdList[i].toString();
 	var PSDDict={};
-	PSDDict["filename"]=PSDName
+	PSDDict["filename"]=getRelativePath(PSDName, inputFolder.toString())
 	readPSD(PSDName);
 	outputPSDList.push(PSDDict)
 }
@@ -29,7 +29,22 @@ a.write(result)
 a.close();
 
 //alert(psdList.length+" files are read")
-
+// 新增函数：获取相对路径
+function getRelativePath(absolutePath, basePath) {
+    // 确保basePath以文件分隔符结尾
+    if (!basePath.match(/[\/\\]$/)) {
+        basePath += "/";
+    }
+    
+    // 如果绝对路径以basePath开头，则提取相对路径部分
+    if (absolutePath.indexOf(basePath) === 0) {
+        return absolutePath.substring(basePath.length);
+    }
+    
+    // 如果不匹配，返回文件名部分作为后备方案
+    var pathParts = absolutePath.split(/[\/\\]/);
+    return pathParts[pathParts.length - 1];
+}
 function getPSDList(dirPath){
 	var dir = new Folder(dirPath)
 	var files = dir.getFiles(); 
