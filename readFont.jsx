@@ -6,7 +6,7 @@ for(var i=0; i<docRef.artLayers.length; i++) {
     if (artLayer.kind==LayerKind.TEXT){
         textLayer = artLayer;
         if (outputPath == "") {
-          alert(textLayer.textItem.font) 
+           alert(textLayer.textItem.font)
         }
         break
     }
