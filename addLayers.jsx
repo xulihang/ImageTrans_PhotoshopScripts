@@ -203,7 +203,9 @@ function addTextLayer(docRef,layername,X,Y,width,height,text,pfontsize,lineheigh
   if (richText==true) {
     setInlineStyles(runs,textLayer);
   }
-  
+  if (parseInt(textDirection)-1 != 0) {
+    alignment = 1;
+  }
   textLayer.textItem.justification=getJustification(alignment)
 }
 
