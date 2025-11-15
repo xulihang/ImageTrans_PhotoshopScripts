@@ -333,8 +333,9 @@ for(var i=0; i<psdList.length; i++) {
 	outputPSDList.push(PSDDict)
 }
 resultDict["psds"]=outputPSDList
-var result=unescape(JSON.stringify(resultDict, null, 4))
+var result=JSON.stringify(resultDict, null, 4)
 var a = new File(inputFolder + "/" + "export.txt");
+a.encoding = "utf-8";
 a.open('w');
 a.write(result)
 a.close();
@@ -422,8 +423,8 @@ function addLayerData(artLayer){
 	var width=artLayer.textItem.width*scale*scale
 	var height=artLayer.textItem.height*scale*scale
 	var dataDict={};
-	dataDict["layername"]=encodeURI(artLayer.name.toString())
-	dataDict["text"]=encodeURI(content.toString())
+	dataDict["layername"]=encodeURIComponent(artLayer.name.toString())
+	dataDict["text"]=encodeURIComponent(content.toString())
 	dataDict["X"]=bounds[0].value.toString()
 	dataDict["Y"]=bounds[1].value.toString()
 	dataDict["width"]=width.value.toString()
