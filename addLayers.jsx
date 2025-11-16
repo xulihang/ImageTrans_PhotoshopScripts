@@ -193,31 +193,7 @@ function addTextLayer(docRef,layername,X,Y,width,height,text,pfontsize,lineheigh
   textLayer.textItem.leading=textLayer.textItem.size*lineheight
   textLayer.textItem.color=getSolidColor(fontcolor)
   
-  if (isPoint==true){
-    // 获取文本的实际边界框
-    var actualBounds = textLayer.bounds
-    var left = actualBounds[0].value
-    var actualWidth = actualBounds[2].value - actualBounds[0].value  // right - left
-    var actualHeight = actualBounds[3].value - actualBounds[1].value  // bottom - top
-    var top = actualBounds[1].value
-    var baselineShift = textLayer.textItem.size * lineheight
-    convertedY = top + baselineShift
-    if (alignment == 1) {
-      convertedX = convertedX
-    } else if (alignment == 2) { // center
-      convertedX = left + actualWidth / 2 //width/res*72 / 2
-    } else if (alignment == 3) { // right
-      convertedX = left + actualWidth //width/res*72
-    }
 
-    textLayer.textItem.kind=TextType.POINTTEXT
-    var currentText=textLayer.textItem.contents;
-    if (currentText.length<text.length){
-      textLayer.textItem.contents = text
-    }
-
-    textLayer.textItem.position=Array(convertedX,convertedY)
-  }
   
   if (shadowColor!="null"){
     var strokeColor = getRGBColor(shadowColor);
@@ -229,6 +205,10 @@ function addTextLayer(docRef,layername,X,Y,width,height,text,pfontsize,lineheigh
   }
 
   textLayer.textItem.justification=getJustification(alignment)
+
+  if (isPoint==true){
+    textLayer.textItem.kind=TextType.POINTTEXT
+  }
 }
 
 function setInlineStyles(runs,textLayer) {
