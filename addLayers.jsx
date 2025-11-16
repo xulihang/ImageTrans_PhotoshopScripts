@@ -141,7 +141,13 @@ function addTextLayer(docRef,layername,X,Y,width,height,text,pfontsize,lineheigh
   }
   text=unescape(text)
   textLayer.kind=LayerKind.TEXT
-  
+
+  var convertedX = X;
+  var convertedY = Y;
+
+  if (parseInt(textDirection)-1 != 0) {
+    alignment = 1;
+  }
 
   if (wrap==true){
     textLayer.textItem.kind=TextType.PARAGRAPHTEXT
@@ -150,7 +156,7 @@ function addTextLayer(docRef,layername,X,Y,width,height,text,pfontsize,lineheigh
     textLayer.textItem.width=width
     textLayer.textItem.height=height
   }else{
-    textLayer.textItem.kind=TextType.POINTTEXT
+    isPoint = true
   }
 
 
@@ -176,7 +182,7 @@ function addTextLayer(docRef,layername,X,Y,width,height,text,pfontsize,lineheigh
     }
   }
   
-  textLayer.textItem.position=Array(X,Y)
+  textLayer.textItem.position=Array(convertedX,convertedY)
   textLayer.textItem.contents = text
   textLayer.textItem.direction = getDirection(textDirection)
 
@@ -188,11 +194,29 @@ function addTextLayer(docRef,layername,X,Y,width,height,text,pfontsize,lineheigh
   textLayer.textItem.color=getSolidColor(fontcolor)
   
   if (isPoint==true){
+    // 获取文本的实际边界框
+    var actualBounds = textLayer.bounds
+    var left = actualBounds[0].value
+    var actualWidth = actualBounds[2].value - actualBounds[0].value  // right - left
+    var actualHeight = actualBounds[3].value - actualBounds[1].value  // bottom - top
+    var top = actualBounds[1].value
+    var baselineShift = textLayer.textItem.size * lineheight
+    convertedY = top + baselineShift
+    if (alignment == 1) {
+      convertedX = convertedX
+    } else if (alignment == 2) { // center
+      convertedX = left + actualWidth / 2 //width/res*72 / 2
+    } else if (alignment == 3) { // right
+      convertedX = left + actualWidth //width/res*72
+    }
+
     textLayer.textItem.kind=TextType.POINTTEXT
     var currentText=textLayer.textItem.contents;
     if (currentText.length<text.length){
       textLayer.textItem.contents = text
     }
+
+    textLayer.textItem.position=Array(convertedX,convertedY)
   }
   
   if (shadowColor!="null"){
@@ -203,9 +227,7 @@ function addTextLayer(docRef,layername,X,Y,width,height,text,pfontsize,lineheigh
   if (richText==true) {
     setInlineStyles(runs,textLayer);
   }
-  if (parseInt(textDirection)-1 != 0) {
-    alignment = 1;
-  }
+
   textLayer.textItem.justification=getJustification(alignment)
 }
 
